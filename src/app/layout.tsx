@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Roboto } from "next/font/google";
 import "./globals.css";
+import { Toaster } from "@/components/ui/sonner";
 
 const robotSans = Roboto({
   variable: "--font-roboto-sans",
@@ -20,8 +21,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className={`${robotSans.variable}  antialiased`}>{children}</body>
+    <html lang="pt-BR">
+      <body className={`${robotSans.variable}  antialiased`}>
+        {children}
+        <Toaster />
+      </body>
     </html>
   );
 }
