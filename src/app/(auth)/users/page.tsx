@@ -55,12 +55,7 @@ export default function Users() {
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
-        <Button
-          variant="outline"
-          className="bg-primary rounded-md text-white hover:text-white hover:bg-primary/90 cursor-pointer"
-        >
-          Cadastrar usuário
-        </Button>
+        <Button className="cursor-pointer">Cadastrar usuário</Button>
       </SheetTrigger>
       <SheetContent style={{ maxWidth: "400px" }}>
         <SheetHeader>
@@ -69,7 +64,10 @@ export default function Users() {
             Preencha os dados abaixo para cadastrar um novo usuário.
           </SheetDescription>
         </SheetHeader>
-        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col h-full">
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="flex flex-col h-full"
+        >
           <div className="px-4 flex flex-col gap-4 flex-grow ">
             <FormField
               id="name"
@@ -116,7 +114,7 @@ export default function Users() {
             </Button>
             <Button
               type="submit"
-              className="cursor-pointer bg-primary text-white"
+              className="cursor-pointer"
               disabled={isSubmitting}
             >
               {isSubmitting ? "Cadastrando..." : "Cadastrar"}
