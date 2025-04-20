@@ -39,6 +39,16 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
+  // Redireciona usuário autenticado tentando acessar /login para /users
+  if (
+    user &&
+    request.nextUrl.pathname.startsWith("/login")
+  ) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/users";
+    return NextResponse.redirect(url);
+  }
+
   if (
     !user &&
     !request.nextUrl.pathname.startsWith("/login")

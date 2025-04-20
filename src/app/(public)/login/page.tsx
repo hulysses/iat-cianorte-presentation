@@ -30,7 +30,6 @@ export default function Login() {
 
     try {
       const result = await login(data);
-      console.log(result);
       if (result.error) {
         reset();
         toast.error(result.error);
