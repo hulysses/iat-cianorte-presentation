@@ -1,6 +1,6 @@
 "use client";
 
-import { createUser } from "@/actions/users/users";
+import { createUser } from "@/app/actions/users/actions";
 import FormField from "@/components/FormField";
 import { Button } from "@/components/ui/button";
 import {

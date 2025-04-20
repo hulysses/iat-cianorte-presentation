@@ -1,36 +1,20 @@
 "use server";
 
-import { supabase } from "@/lib/supabase";
+import { userSchema } from "@/hooks/users/useUsersForm";
+import { createClient } from "@/utils/supabase/server";
 import { z } from "zod";
 
-const userSchema = z.object({
-  name: z
-    .string()
-    .nonempty("Nome é obrigatório")
-    .min(3, "Nome deve ter pelo menos 3 caracteres"),
-  email: z.string().nonempty("E-mail é obrigatório").email("E-mail inválido"),
-  password: z
-    .string()
-    .nonempty("Senha é obrigatória")
-    .min(6, "Senha deve ter pelo menos 6 caracteres"),
-  admin: z.boolean(),
-});
+type FormData = z.infer<typeof userSchema>;
 
-export async function createUser(formData: any) {
+export async function createUser(formData: FormData) {
+  const supabase = await createClient();
+
   try {
-    const parsed = userSchema.safeParse(formData);
-
-    if (!parsed.success) {
-      console.error("Validation error:", parsed.error);
-      return { success: false, error: "Dados inválidos" };
-    }
-
-    const { name, email, password, admin } = parsed.data;
+    const { email, password, name, admin } = formData;
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
     });
-
     if (error) {
       console.error("Auth error:", error);
       return { success: false, error: "Erro ao cadastrar usuário." };
@@ -42,7 +26,6 @@ export async function createUser(formData: any) {
       email,
       is_admin: admin,
     });
-
     if (insertError) {
       console.error("DB error:", insertError);
       return { success: false, error: "Erro ao salvar usuário no banco." };

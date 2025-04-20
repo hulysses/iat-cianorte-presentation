@@ -1,6 +1,6 @@
 "use client";
 
-import { Label } from "@radix-ui/react-label";
+import { Label } from "./ui/label";
 import { Input } from "./ui/input";
 import { InputHTMLAttributes, useState } from "react";
 import { IconEye, IconEyeOff } from "@tabler/icons-react";
@@ -43,7 +43,7 @@ export default function FormField({
     <div className="flex flex-col gap-1">
       <Label
         htmlFor={id}
-        className={`block text-sm font-medium ${error && "text-red-500"}`}
+        className={`block text-sm font-medium${error ? " text-red-500" : ""}`}
       >
         {label}
       </Label>
@@ -56,7 +56,7 @@ export default function FormField({
             value={value}
             onChange={onChange}
             {...props}
-            className={error && "border-red-500"}
+            className={error ? "border-red-500" : ""}
           />
           <button
             type="button"
@@ -76,7 +76,7 @@ export default function FormField({
           value={value} 
           onValueChange={onChange}
         >
-          <SelectTrigger className={error && "border-red-500"}>
+          <SelectTrigger className={error ? "border-red-500" : ""}>
             <SelectValue placeholder="Selecione" />
           </SelectTrigger>
           <SelectContent>
@@ -94,7 +94,7 @@ export default function FormField({
           value={value}
           onChange={onChange}
           {...props}
-          className={error && "border-red-500"}
+          className={error ? "border-red-500" : ""}
         />
       )}
       {error && <p className="text-sm text-red-500 mt-1">{error}</p>}

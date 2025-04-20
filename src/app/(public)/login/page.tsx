@@ -2,34 +2,47 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { redirect } from "next/navigation";
-import { useState } from "react";
-import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
 import FormField from "@/components/FormField";
 import Logo from "../../../assets/logo.png";
 import LoginBackground from "../../../assets/login-background.png";
+import { loginSchema, useLoginForm } from "@/hooks/login/useLoginForm";
+import { z } from "zod";
+import { useState } from "react";
+import { toast } from "sonner";
+import { login } from "@/app/actions/login/actions";
+import { useRouter } from "next/navigation";
 
 export default function Login() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
+  const router = useRouter();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+  } = useLoginForm();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  type FormData = z.infer<typeof loginSchema>;
 
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+  const onSubmit = async (data: FormData) => {
+    setIsSubmitting(true);
 
-    if (error) {
-      console.error("Error logging in:", error.message);
-      return;
-    }
+    try {
+      const result = await login(data);
+      console.log(result);
+      if (result.error) {
+        reset();
+        toast.error(result.error);
+        return;
+      }
 
-    if (data.user) {
-      redirect("/users");
+      router.push("/users");
+    } catch (error) {
+      toast.error("Erro ao autenticar usuário.");
+      console.error(error);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -61,19 +74,22 @@ export default function Login() {
             </h2>
           </div>
 
-          <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+          <form className="mt-8 space-y-6" onSubmit={handleSubmit(onSubmit)}>
             <div className="space-y-4">
               <FormField
                 id="name"
-                label="Nome"
-                placeholder="Insira seu nome"
-                type="text"
+                label="E-mail"
+                placeholder="Insira seu e-mail"
+                {...register("email")}
+                error={errors.email?.message}
               />
               <FormField
                 id="password"
                 label="Senha"
                 placeholder="Insira sua senha"
                 type="password"
+                {...register("password")}
+                error={errors.password?.message}
               />
               {/* <Link
                   href="/forgot-password"
@@ -83,8 +99,13 @@ export default function Login() {
                 </Link> */}
             </div>
 
-            <Button type="submit" className="w-full cursor-pointer" size={"lg"}>
-              Entrar
+            <Button
+              type="submit"
+              className="w-full cursor-pointer"
+              size={"lg"}
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? "Entrando..." : "Entrar"}
             </Button>
           </form>
 
