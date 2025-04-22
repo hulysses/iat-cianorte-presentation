@@ -12,6 +12,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import { Table, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { userSchema, useUserForm } from "@/hooks/users/useUsersForm";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -53,9 +54,20 @@ export default function Users() {
   };
 
   return (
-    <div>
+    <div className="">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Nome</TableHead>
+            <TableHead>E-mail</TableHead>
+            <TableHead>Administrador</TableHead>
+            <TableHead>Ações</TableHead>
+          </TableRow>
+        </TableHeader>
+      </Table>
+
       <Sheet open={open} onOpenChange={setOpen}>
-        <SheetTrigger asChild>
+        <SheetTrigger asChild className="flex ">
           <Button className="cursor-pointer">Cadastrar usuário</Button>
         </SheetTrigger>
         <SheetContent style={{ maxWidth: "400px" }}>
