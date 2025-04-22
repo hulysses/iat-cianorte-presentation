@@ -1,15 +1,6 @@
 "use client";
 
-import {
-  Users,
-  Home,
-  SmilePlus,
-  ShoppingBasket,
-  ShoppingCart,
-  Truck,
-  ArrowLeftRight,
-  LogOut,
-} from "lucide-react";
+import { Users, Home, LogOut } from "lucide-react";
 import Logo from "../assets/logo.png";
 import {
   Sidebar,
@@ -25,6 +16,9 @@ import {
 } from "@/components/ui/sidebar";
 import Image from "next/image";
 import { Button } from "./ui/button";
+import { createClient } from "@/utils/supabase/client";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 const items = [
   {
@@ -40,21 +34,32 @@ const items = [
 ];
 
 export function AppSidebar() {
-  const handleLogout = () => {
-    localStorage.removeItem("authToken");
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    const supabase = createClient();
+
+    const { error } = await supabase.auth.signOut();
+
+    if (error) {
+      toast.error("Erro ao sair do sistema.");
+      console.log(error.message);
+      return;
+    }
+    if (!error) {
+      router.push("/users");
+    }
   };
 
   return (
     <SidebarProvider>
       <Sidebar collapsible="icon" className="bg-white">
-        <SidebarHeader className="h-[140px] bg-blue flex items-center justify-center transition-all duration-500 ease-in-out group-data-[collapsible=icon]:h-[47px] overflow-hidden">
-          <div className="w-full h-full flex items-center justify-center transition-all duration-500 ease-in-out group-data-[collapsible=icon]:w-[80px] group-data-[collapsible=icon]:h-[80px]">
-            <Image
-              src={Logo}
-              alt="Logo"
-              className="max-w-full max-h-full object-contain transition-all duration-500 ease-in-out opacity-100 group-data-[collapsible=icon]:opacity-0 group-data-[collapsible=icon]:scale-75 absolute"
-            />
-          </div>
+        <SidebarHeader className="h-[70px] bg-blue flex items-center justify-center transition-all duration-500 ease-in-out group-data-[collapsible=icon]:h-[47px] overflow-hidden">
+          <Image
+            src={Logo}
+            alt="Logo"
+            className="w-14 object-contain transition-all duration-500 ease-in-out opacity-100 group-data-[collapsible=icon]:opacity-0 group-data-[collapsible=icon]:scale-75 absolute"
+          />
         </SidebarHeader>
         <SidebarContent>
           <SidebarGroup>
@@ -77,7 +82,7 @@ export function AppSidebar() {
         <SidebarFooter>
           <Button
             onClick={handleLogout}
-            className="flex justify-center items-center text-xl text-red-800 cursor-pointer"
+            className="flex justify-center items-center text-xl bg-transparent text-red-800 cursor-pointer hover:bg-transparent"
           >
             <LogOut className="flex-shrink-0 w-4" />
             <span className="group-data-[collapsible=icon]:hidden">Sair</span>
