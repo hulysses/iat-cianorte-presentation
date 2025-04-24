@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import FormField from "@/components/FormField";
+import FormField from "@/components/form-field";
 import Logo from "../../../assets/logo.png";
 import LoginBackground from "../../../assets/login-background.png";
 import { loginSchema, useLoginForm } from "@/hooks/login/useLoginForm";

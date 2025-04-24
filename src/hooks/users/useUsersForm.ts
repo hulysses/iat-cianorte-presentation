@@ -4,6 +4,8 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
+export type UserFormData = z.infer<typeof userSchema>;
+
 export const userSchema = z.object({
   name: z
     .string()
@@ -16,8 +18,6 @@ export const userSchema = z.object({
     .min(6, "Senha deve ter pelo menos 6 caracteres"),
   admin: z.boolean(),
 });
-
-export type UserFormData = z.infer<typeof userSchema>;
 
 export function useUserForm() {
   return useForm<UserFormData>({

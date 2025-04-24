@@ -56,12 +56,14 @@ export function AppSidebar() {
         className="h-[70px] bg-blue flex items-center justify-center transition-all duration-500 ease-in-out
         group-data-[collapsible=icon]:h-[47px] overflow-hidden"
       >
-        <Image
-          src={Logo}
-          alt="Logo"
-          className="w-14 object-contain transition-all duration-500 ease-in-out opacity-100 
-          group-data-[collapsible=icon]:opacity-0 group-data-[collapsible=icon]:scale-75 absolute"
-        />
+        <div className="relative flex items-center justify-center w-full h-full">
+          <Image
+            src={Logo}
+            alt="Logo"
+            className="w-14 object-contain transition-all duration-500 ease-in-out group-data-[collapsible=icon]:w-6 
+            group-data-[collapsible=icon]:absolute group-data-[collapsible=icon]:left-1/2 group-data-[collapsible=icon]:-translate-x-1/2"
+          />
+        </div>
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>

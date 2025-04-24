@@ -1,12 +1,9 @@
 "use server";
 
-import { userSchema } from "@/hooks/users/useUsersForm";
+import { UserFormData } from "@/hooks/users/useUsersForm";
 import { createClient } from "@/utils/supabase/server";
-import { z } from "zod";
 
-type FormData = z.infer<typeof userSchema>;
-
-export async function createUser(formData: FormData) {
+export async function createUser(formData: UserFormData) {
   const supabase = await createClient();
 
   try {
@@ -17,6 +14,15 @@ export async function createUser(formData: FormData) {
     });
     if (error) {
       console.error("Auth error:", error);
+      if (error.code === "user_already_exists") {
+        return {
+          success: false,
+          error: "Já existe um usuário cadastrado com esse e-mail.",
+        };
+      }
+      if (error.code === "invalid_credentials") {
+        return { success: false, error: "E-mail ou senha inválidos." };
+      }
       return { success: false, error: "Erro ao cadastrar usuário." };
     }
 
