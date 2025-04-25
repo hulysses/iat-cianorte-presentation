@@ -1,18 +1,31 @@
-"use client"
+"use client";
 
-import { Button } from "@/components/ui/button"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import type { ColumnDef } from "@tanstack/react-table"
-import { ArrowUpDown, MoreHorizontal } from "lucide-react"
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import type { ColumnDef } from "@tanstack/react-table";
+import { ArrowUpDown, MoreHorizontal } from "lucide-react";
 
 export type Users = {
-  id: string
-  name: string
-  email: string
-  is_admin: string
-}
+  id: string;
+  name: string;
+  email: string;
+  is_admin: string;
+};
 
-export const userColumns = (onEdit: (user: Users) => void): ColumnDef<Users>[] => [
+type UserColumns = {
+  handleEditUser: (user: Users) => void;
+  handleDeleteUser: (user: Users) => void;
+};
+
+export const userColumns = ({
+  handleEditUser,
+  handleDeleteUser,
+}: UserColumns): ColumnDef<Users>[] => [
   {
     accessorKey: "name",
     header: ({ column }) => {
@@ -25,7 +38,7 @@ export const userColumns = (onEdit: (user: Users) => void): ColumnDef<Users>[] =
           Nome
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
-      )
+      );
     },
   },
   {
@@ -40,7 +53,7 @@ export const userColumns = (onEdit: (user: Users) => void): ColumnDef<Users>[] =
           E-mail
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
-      )
+      );
     },
   },
   {
@@ -55,30 +68,35 @@ export const userColumns = (onEdit: (user: Users) => void): ColumnDef<Users>[] =
           Admistrator
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
-      )
+      );
     },
   },
   {
     id: "actions",
     header: ({}) => {
-      return <p className="text-base font-semibold text-white">Ações</p>
+      return <p className="text-base font-semibold text-white">Ações</p>;
     },
     cell: ({ row }) => {
-      const user = row.original
+      const user = row.original;
 
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0 hover:bg-transparent">
+            <Button
+              variant="ghost"
+              className="h-8 w-8 p-0 hover:bg-transparent"
+            >
               <MoreHorizontal className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => onEdit(user)}>Editar</DropdownMenuItem>
-            <DropdownMenuItem>Excluir</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => handleEditUser(user)}>
+              Editar
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => handleDeleteUser(user)}>Excluir</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-      )
+      );
     },
   },
-]
+];

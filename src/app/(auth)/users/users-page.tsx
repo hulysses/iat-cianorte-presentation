@@ -1,6 +1,11 @@
 "use client";
 
-import { createUser, getUsers, updateUser } from "@/app/actions/users/actions";
+import {
+  createUser,
+  deleteUser,
+  getUsers,
+  updateUser,
+} from "@/app/actions/users/actions";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -16,19 +21,18 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { DataTable } from "./data-table";
 import { userColumns } from "./columns";
-
-type User = {
-  id: string;
-  name: string;
-  email: string;
-  is_admin: string;
-};
+import { User } from "@/types/users";
+import UserDialog from "@/components/user-dialog";
 
 export default function Users({ initialUsers = [] }: { initialUsers: User[] }) {
   const [open, setOpen] = useState(false);
+  const [openDelete, setOpenDelete] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [users, setUsers] = useState<User[]>(initialUsers);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [selectedUserDelete, setSelectedUserDelete] = useState<User | null>(
+    null
+  );
   const filters = ["name", "email"];
   const filterLabels = { name: "nome", email: "e-mail" };
 
@@ -48,7 +52,7 @@ export default function Users({ initialUsers = [] }: { initialUsers: User[] }) {
         if (result.success) {
           setOpen(false);
           toast.success("Usuário atualizado com sucesso!");
-          await refreshUsers(); 
+          await refreshUsers();
         } else {
           toast.error(result.error || "Erro ao atualizar usuário.");
         }
@@ -76,9 +80,36 @@ export default function Users({ initialUsers = [] }: { initialUsers: User[] }) {
     }
   };
 
+  const handleDelete = async () => {
+    setIsSubmitting(true);
+    if (selectedUserDelete) {
+      try {
+        const result = await deleteUser(selectedUserDelete.id);
+        if (result.success) {
+          setOpenDelete(false);
+          toast.success("Usuário excluído com sucesso!");
+          await refreshUsers();
+        } else {
+          toast.error(result.error || "Erro ao excluir usuário.");
+        }
+      } catch (error) {
+        toast.error("Erro ao excluir usuário.");
+        console.error(error);
+      } finally {
+        setSelectedUserDelete(null);
+        setIsSubmitting(false);
+        setOpenDelete(false);
+      }
+    }
+  };
+
   const handleEditUser = (user: User) => {
     setSelectedUser(user);
     setOpen(true);
+  };
+  const handleDeleteUser = (user: User) => {
+    setSelectedUserDelete(user);
+    setOpenDelete(true);
   };
 
   useEffect(() => {
@@ -132,10 +163,18 @@ export default function Users({ initialUsers = [] }: { initialUsers: User[] }) {
       </div>
 
       <DataTable
-        columns={userColumns(handleEditUser)}
+        columns={userColumns({ handleEditUser, handleDeleteUser })}
         data={users}
         filters={filters}
         filterLabels={filterLabels}
+      />
+
+      <UserDialog
+        handleDelete={handleDelete}
+        openDelete={openDelete}
+        setOpenDelete={setOpenDelete}
+        selectedUserDelete={selectedUserDelete}
+        isSubmitting={isSubmitting}
       />
     </div>
   );

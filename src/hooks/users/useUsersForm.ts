@@ -30,7 +30,7 @@ export const userSchema = z.object({
   admin: z.boolean(),
 });
 
-export function useUserForm(isEdit = false) {
+export function useUserForm(isEdit = false, defaultValues?: Partial<UserFormData>) {
   return useForm<UserFormData>({
     resolver: zodResolver(
       isEdit
@@ -48,6 +48,7 @@ export function useUserForm(isEdit = false) {
       email: "",
       password: "",
       admin: false,
+      ...defaultValues,
     },
   });
 }

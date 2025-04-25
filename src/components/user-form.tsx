@@ -19,7 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "./ui/select";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { IconEye, IconEyeOff } from "@tabler/icons-react";
 
 type User = {
@@ -43,28 +43,17 @@ export default function UserForm({
   user,
 }: UserFormProps) {
   const [showPassword, setShowPassword] = useState(false);
-  const form = useUserForm(!!user);
+
+  const form = useUserForm(!!user, {
+    name: user?.name ?? "",
+    email: user?.email ?? "",
+    password: "",
+    admin: user ? user.is_admin === "Sim" : false,
+  });
+
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
   };
-
-  useEffect(() => {
-    if (user) {
-      form.reset({
-        name: user.name,
-        email: user.email,
-        password: "",
-        admin: user.is_admin === "Sim",
-      });
-    } else {
-      form.reset({
-        name: "",
-        email: "",
-        password: "",
-        admin: false,
-      });
-    }
-  }, [user, form]);
 
   return (
     <Form {...form}>
@@ -143,18 +132,8 @@ export default function UserForm({
                 <FormLabel>Administrador?</FormLabel>
                 <FormControl>
                   <Select
-                    // Corrige o valor para aceitar boolean ou string
                     onValueChange={(value) => field.onChange(value === "true")}
-                    // Garante que o valor seja sempre "true" ou "false" como string
-                    value={
-                      typeof field.value === "boolean"
-                        ? String(field.value)
-                        : field.value === "Sim"
-                        ? "true"
-                        : field.value === "Não"
-                        ? "false"
-                        : String(!!field.value)
-                    }
+                    value={field.value === true ? "true" : "false"}
                   >
                     <SelectTrigger className="w-full">
                       <SelectValue placeholder="Selecione" />
@@ -175,7 +154,7 @@ export default function UserForm({
           <Button
             type="button"
             variant="outline"
-            className="border-red-600 text-red-600 hover:bg-red-600 hover:text-white"
+            className="border-red-600 text-red-600 hover:text-red-600"
             onClick={() => {
               form.reset();
               setOpen(false);

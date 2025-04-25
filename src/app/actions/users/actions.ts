@@ -71,11 +71,10 @@ export async function getUsers() {
   return { success: true, data };
 }
 
-export async function updateUser(formData: UserFormData,  id: string ) {
+export async function updateUser(formData: UserFormData, id: string) {
   const supabase = await createClient();
   try {
     const { password, name, admin } = formData;
-    console.log("Form data:", formData);
 
     if (!id) {
       console.error("User ID is missing");
@@ -110,5 +109,27 @@ export async function updateUser(formData: UserFormData,  id: string ) {
   } catch (error) {
     console.error("Error updating user:", error);
     return { success: false, error: "Failed to update user" };
+  }
+}
+
+export async function deleteUser(id: string) {
+  const supabase = await createClient();
+  try {
+    if (!id) {
+      console.error("User ID is missing");
+      return { success: false, error: "ID do usuário não informado." };
+    }
+
+    const { error } = await supabase.from("users").delete().eq("id", id);
+
+    if (error) {
+      console.error("DB error:", error);
+      return { success: false, error: "Erro ao deletar usuário." };
+    }
+
+    return { success: true };
+  } catch (error) {
+    console.error("Error deleting user:", error);
+    return { success: false, error: "Erro ao deletar usuário." };
   }
 }
