@@ -14,14 +14,35 @@ export const userSchema = z.object({
   email: z.string().nonempty("E-mail é obrigatório").email("E-mail inválido"),
   password: z
     .string()
-    .nonempty("Senha é obrigatória")
-    .min(6, "Senha deve ter pelo menos 6 caracteres"),
+    .transform((val) => (val === "" ? undefined : val))
+    .optional()
+    .refine(
+      (password: string | undefined) => {
+        if (password !== undefined) {
+          return password.length >= 6;
+        }
+        return true;
+      },
+      {
+        message: "Senha deve ter pelo menos 6 caracteres",
+      }
+    ),
   admin: z.boolean(),
 });
 
-export function useUserForm() {
+export function useUserForm(isEdit = false) {
   return useForm<UserFormData>({
-    resolver: zodResolver(userSchema),
+    resolver: zodResolver(
+      isEdit
+        ? userSchema
+        : userSchema.refine(
+            (data) => data.password !== undefined,
+            {
+              message: "Senha é obrigatória",
+              path: ["password"],
+            }
+          )
+    ),
     defaultValues: {
       name: "",
       email: "",

@@ -2,7 +2,6 @@
 
 import { loginSchema } from "@/hooks/login/useLoginForm";
 import { createClient } from "@/utils/supabase/server";
-import { redirect } from "next/navigation";
 import { z } from "zod";
 
 type FormData = z.infer<typeof loginSchema>;
