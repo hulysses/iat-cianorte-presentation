@@ -74,6 +74,7 @@ export function AppSidebar() {
                   <SidebarMenuButton
                     asChild
                     onClick={() => router.push(item.url)}
+                    className="text-base"
                   >
                     <a className="text-primary">
                       <item.icon />

@@ -36,7 +36,7 @@ export default function Login() {
         return;
       }
 
-      router.push("/users");
+      router.push("/home");
     } catch (error) {
       toast.error("Erro ao autenticar usuário.");
       console.error(error);

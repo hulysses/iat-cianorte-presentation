@@ -42,15 +42,11 @@ export default function UserDialog({
         </DialogHeader>
         <DialogFooter className="justify-end">
           <DialogClose asChild>
-            <Button
-              type="button"
-              variant="outline"
-              className="border-red-600 text-red-600 hover:text-red-600"
-            >
+            <Button type="button" variant="outline" className="text-sm">
               Cancelar
             </Button>
           </DialogClose>
-          <Button type="submit" onClick={handleDelete}>
+          <Button type="submit" onClick={handleDelete} className="text-sm">
             {isSubmitting ? "Excluindo..." : "Excluir"}
           </Button>
         </DialogFooter>
