@@ -17,6 +17,7 @@ type UserDialogProps = {
   isSubmitting: boolean;
   open: boolean;
   setOpen: (open: boolean) => void;
+  goalNumber: number;
 };
 
 export default function GoalDialog({
@@ -24,20 +25,27 @@ export default function GoalDialog({
   isSubmitting,
   open,
   setOpen,
+  goalNumber,
 }: UserDialogProps) {
   const currentYear = new Date().getFullYear();
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline">Adicionar meta</Button>
+        <Button variant="outline">
+          {goalNumber > 0 ? "Nova meta" : "Adicionar meta"}
+        </Button>
       </DialogTrigger>
 
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Adicionar meta</DialogTitle>
+          <DialogTitle>
+            {goalNumber > 0 ? "Atualizar meta" : "Adicionar meta"}
+          </DialogTitle>
           <DialogDescription>
-            Informe a meta de licenças para o ano de{" "}
+            {goalNumber > 0
+              ? "Atualize a meta de licenças para o ano de"
+              : "Informe a meta de licenças para o ano de"}{" "}
             <span className="text-primary font-bold">{currentYear}</span>.
           </DialogDescription>
         </DialogHeader>

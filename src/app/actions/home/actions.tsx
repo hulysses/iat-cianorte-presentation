@@ -10,11 +10,10 @@ export async function createGoal(formData: GoalDialogFormData) {
 
     const { data, error } = await supabase.from("goals").insert({
       goal_number: Number(goal),
-      year: new Date().getFullYear(),
     });
     if (error) {
       console.error("Insert goal error", error);
-      
+
       return {
         success: false,
         error: "Erro ao adicionar meta.",
@@ -31,26 +30,30 @@ export async function createGoal(formData: GoalDialogFormData) {
   }
 }
 
-// export async function getUsers() {
-//   const supabase = await createClient();
-//   const { data, error } = await supabase.from("users").select("*");
+export async function getGoal() {
+  const supabase = await createClient();
+  const currentYear = new Date().getFullYear();
 
-//   if (error) {
-//     console.error("Error fetching users:", error);
-//     return { success: false, error: "Erro ao buscar usuários." };
-//   }
+  // Busca a última meta do ano presente
+  const { data, error } = await supabase
+    .from("goals")
+    .select("goal_number")
+    .filter("created_at", "gte", `${currentYear}-01-01`)
+    .filter("created_at", "lt", `${currentYear + 1}-01-01`)
+    .order("created_at", { ascending: false })
+    .limit(1);
 
-//   if (data.length === 0) {
-//     return { success: false, error: "Nenhum usuário encontrado." };
-//   }
+  if (error) {
+    console.error("Error fetching goals:", error);
+    return { success: false, error: "Erro ao buscar meta." };
+  }
 
-//   if (data) {
-//     data.forEach((user) => {
-//       user.is_admin = user.is_admin ? "Sim" : "Não";
-//     });
-//   }
-//   return { success: true, data };
-// }
+  if (!data || data.length === 0) {
+    return { success: false, error: "Nenhuma meta encontrada." };
+  }
+
+  return { success: true, data };
+}
 
 // export async function updateUser(formData: UserFormData, id: string) {
 //   const supabase = await createClient();

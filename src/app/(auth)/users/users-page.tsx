@@ -112,10 +112,6 @@ export default function Users({ initialUsers = [] }: { initialUsers: User[] }) {
     setOpenDelete(true);
   };
 
-  useEffect(() => {
-    setUsers(initialUsers);
-  }, [initialUsers]);
-
   return (
     <div className="w-full px-5">
       <div className="flex mb-6 justify-between items-center">
