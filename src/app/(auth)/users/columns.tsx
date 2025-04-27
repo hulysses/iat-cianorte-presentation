@@ -7,19 +7,13 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { User } from "@/types/users";
 import type { ColumnDef } from "@tanstack/react-table";
 import { ArrowUpDown, MoreHorizontal } from "lucide-react";
 
-export type Users = {
-  id: string;
-  name: string;
-  email: string;
-  is_admin: string;
-};
-
 type UserColumns = {
-  handleEditUser: (user: Users) => void;
-  handleDeleteUser: (user: Users) => void;
+  handleEditUser: (user: User) => void;
+  handleDeleteUser: (user: User) => void;
   isAdmin?: boolean;
 };
 
@@ -27,7 +21,7 @@ export const userColumns = ({
   handleEditUser,
   handleDeleteUser,
   isAdmin,
-}: UserColumns): ColumnDef<Users>[] => [
+}: UserColumns): ColumnDef<User>[] => [
   {
     accessorKey: "name",
     header: ({ column }) => {

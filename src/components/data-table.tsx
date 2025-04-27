@@ -27,7 +27,7 @@ import { Input } from "@/components/ui/input";
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
-  filters: string[];
+  filters?: string[];
   filterLabels?: Record<string, string>;
 }
 
@@ -59,7 +59,7 @@ export function DataTable<TData, TValue>({
     <div>
       <div className="w-full flex justify-end pb-4">
         <div className="w-[50%] flex gap-4">
-          {filters.map((filter) => (
+          {filters?.map((filter) => (
             <div key={filter} className="w-full">
               <Input
                 id={filter}
@@ -118,7 +118,7 @@ export function DataTable<TData, TValue>({
                   colSpan={columns.length}
                   className="h-24 text-center"
                 >
-                  Nenhum resultado enconstrado.
+                  Nenhum resultado encontrado.
                 </TableCell>
               </TableRow>
             )}

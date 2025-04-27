@@ -18,6 +18,7 @@ export default async function Home() {
       servicesPerformedType={servicesPerformedType}
       animalsAttendType={animalsAttendType}
       userIsAdmin={userIsAdminResult?.data?.is_admin}
+      initialHomeDataList={homeData || []}
     />
   );
 }

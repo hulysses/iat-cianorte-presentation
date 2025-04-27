@@ -2,10 +2,12 @@
 
 import { getHomeData, insertHomeData } from "@/app/actions/home/actions";
 import CardHome from "@/components/card-home";
+import { DataTable } from "@/components/data-table";
 import { Button } from "@/components/ui/button";
 import { HomeData } from "@/types/home-data";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { homeColumns } from "./columns";
 
 export default function HomePage({
   goalLicensesType,
@@ -13,8 +15,14 @@ export default function HomePage({
   servicesPerformedType,
   animalsAttendType,
   userIsAdmin,
-}: HomeData & { userIsAdmin: boolean }) {
+  initialHomeDataList,
+}: HomeData & { userIsAdmin: boolean; initialHomeDataList: any[] }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [homeDataList, setHomeDataList] = useState<any[]>(
+    initialHomeDataList || []
+  );
+  const isAdmin = userIsAdmin;
+
   const [goalLicenses, setGoalLicenses] = useState<number>(goalLicensesType);
   const [licensesIssued, setLicensesIssued] =
     useState<number>(licensesIssuedType);
@@ -22,26 +30,22 @@ export default function HomePage({
     servicesPerformedType
   );
   const [animalsAttend, setAnimalsAttend] = useState<number>(animalsAttendType);
-  const isAdmin = userIsAdmin;
+
+  useEffect(() => {
+    if (homeDataList.length > 0) {
+      const last = homeDataList[0];
+      setGoalLicenses(last.goal_licenses ?? 0);
+      setLicensesIssued(last.licenses_issued ?? 0);
+      setServicesPerformed(last.services_performed ?? 0);
+      setAnimalsAttend(last.animals_attend ?? 0);
+    }
+  }, [homeDataList]);
 
   const fetchData = async () => {
     try {
       const response = await getHomeData();
-
-      if (response.success) {
-        if (response.data) {
-          const {
-            goal_licenses,
-            licenses_issued,
-            services_performed,
-            animals_attend,
-          } = response.data[0];
-
-          setGoalLicenses(goal_licenses ?? 0);
-          setLicensesIssued(licenses_issued ?? 0);
-          setServicesPerformed(services_performed ?? 0);
-          setAnimalsAttend(animals_attend ?? 0);
-        }
+      if (response.success && response.data) {
+        setHomeDataList(response.data);
       }
     } catch (error) {
       console.error("Erro ao buscar metas:", error);
@@ -58,6 +62,7 @@ export default function HomePage({
         animalsAttend < 0
       ) {
         toast.error("Valores não podem ser menores que 0.");
+        setIsSubmitting(false);
         return;
       }
       if (
@@ -67,15 +72,20 @@ export default function HomePage({
         animalsAttend === 0
       ) {
         toast.error("Valores não podem ser iguais a 0.");
+        setIsSubmitting(false);
         return;
       }
+
+      const last = homeDataList[0];
       if (
-        goalLicenses == goalLicensesType &&
-        licensesIssued == licensesIssuedType &&
-        servicesPerformed == servicesPerformedType &&
-        animalsAttend == animalsAttendType
+        last &&
+        goalLicenses == (last.goal_licenses ?? 0) &&
+        licensesIssued == (last.licenses_issued ?? 0) &&
+        servicesPerformed == (last.services_performed ?? 0) &&
+        animalsAttend == (last.animals_attend ?? 0)
       ) {
         toast.error("Nenhum valor foi alterado.");
+        setIsSubmitting(false);
         return;
       }
 
@@ -88,7 +98,7 @@ export default function HomePage({
 
       if (response.success) {
         toast.success("Dados salvos com sucesso!");
-        fetchData();
+        await fetchData();
       } else {
         toast.error(response.error || "Erro ao salvar dados.");
       }
@@ -138,6 +148,21 @@ export default function HomePage({
           title="Animais silvestres atendidos"
           value={animalsAttend}
           setValue={setAnimalsAttend}
+        />
+      </div>
+      <div className="mt-8">
+        <h2 className="font-bold text-xl text-primary">Histórico de dados</h2>
+        <DataTable
+          columns={homeColumns()}
+          data={homeDataList.map((item) => ({
+            createdAtType: new Date(item.created_at).toLocaleDateString(
+              "pt-BR"
+            ),
+            goalLicensesType: item.goal_licenses,
+            licensesIssuedType: item.licenses_issued,
+            servicesPerformedType: item.services_performed,
+            animalsAttendType: item.animals_attend,
+          }))}
         />
       </div>
     </div>
