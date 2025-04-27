@@ -20,11 +20,13 @@ export type Users = {
 type UserColumns = {
   handleEditUser: (user: Users) => void;
   handleDeleteUser: (user: Users) => void;
+  isAdmin?: boolean;
 };
 
 export const userColumns = ({
   handleEditUser,
   handleDeleteUser,
+  isAdmin,
 }: UserColumns): ColumnDef<Users>[] => [
   {
     accessorKey: "name",
@@ -81,7 +83,7 @@ export const userColumns = ({
 
       return (
         <DropdownMenu>
-          <DropdownMenuTrigger asChild>
+          <DropdownMenuTrigger asChild disabled={!isAdmin}>
             <Button
               variant="ghost"
               className="h-8 w-8 p-0 hover:bg-transparent"
@@ -93,7 +95,9 @@ export const userColumns = ({
             <DropdownMenuItem onClick={() => handleEditUser(user)}>
               Editar
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => handleDeleteUser(user)}>Excluir</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => handleDeleteUser(user)}>
+              Excluir
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       );

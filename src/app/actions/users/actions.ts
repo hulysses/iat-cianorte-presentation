@@ -4,20 +4,22 @@ import { UserFormData } from "@/hooks/users/useUsersForm";
 import { createClient } from "@/utils/supabase/server";
 
 export async function createUser(formData: UserFormData) {
-  const supabase = await createClient();
+  const supabase = await createClient(true);
   try {
     const { email, password, name, admin } = formData;
 
     if (!password) {
       return { success: false, error: "A senha é obrigatória." };
     }
-    const { data, error } = await supabase.auth.signUp({
+
+    const { data, error } = await supabase.auth.admin.createUser({
+      email_confirm: true,
       email,
       password,
     });
     if (error) {
       console.error("Auth error:", error);
-      if (error.code === "user_already_exists") {
+      if (error.code === "email_exists") {
         return {
           success: false,
           error: "Já existe um usuário cadastrado com esse e-mail.",
@@ -28,6 +30,8 @@ export async function createUser(formData: UserFormData) {
       }
       return { success: false, error: "Erro ao cadastrar usuário." };
     }
+
+    console.log("User created:", data);
 
     const { error: insertError } = await supabase.from("users").insert({
       id: data.user?.id,
@@ -72,7 +76,7 @@ export async function getUsers() {
 }
 
 export async function updateUser(formData: UserFormData, id: string) {
-  const supabase = await createClient();
+  const supabase = await createClient(true);
   try {
     const { password, name, admin } = formData;
 
@@ -113,7 +117,7 @@ export async function updateUser(formData: UserFormData, id: string) {
 }
 
 export async function deleteUser(id: string) {
-  const supabase = await createClient();
+  const supabase = await createClient(true);
   try {
     if (!id) {
       console.error("User ID is missing");
@@ -121,9 +125,14 @@ export async function deleteUser(id: string) {
     }
 
     const { error } = await supabase.from("users").delete().eq("id", id);
+    const { error: authError } = await supabase.auth.admin.deleteUser(id);
 
     if (error) {
       console.error("DB error:", error);
+      return { success: false, error: "Erro ao deletar usuário." };
+    }
+    if (authError) {
+      console.error("Auth error:", authError);
       return { success: false, error: "Erro ao deletar usuário." };
     }
 
@@ -131,5 +140,35 @@ export async function deleteUser(id: string) {
   } catch (error) {
     console.error("Error deleting user:", error);
     return { success: false, error: "Erro ao deletar usuário." };
+  }
+}
+
+export async function userIsAdmin() {
+  const supabase = await createClient();
+
+  try {
+    const { data, error } = await supabase.auth.getUser();
+
+    if (error) {
+      console.error("Error fetching user:", error);
+      return { success: false, error: "Erro ao buscar usuário." };
+    }
+
+    if (data.user) {
+      const { data: dataUser, error: errorUser } = await supabase
+        .from("users")
+        .select("is_admin")
+        .eq("id", data.user.id)
+        .single();
+
+      if (errorUser) {
+        console.error("Error fetching user data:", errorUser);
+        return { success: false, error: "Erro ao buscar dados do usuário." };
+      }
+      return { success: dataUser.is_admin, data: dataUser };
+    }
+  } catch (error) {
+    console.error("Error:", error);
+    return { success: false, error: "Usuário não encontrado." };
   }
 }

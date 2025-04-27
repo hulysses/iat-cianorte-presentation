@@ -24,7 +24,13 @@ import { userColumns } from "./columns";
 import { User } from "@/types/users";
 import UserDialog from "@/components/user-dialog";
 
-export default function Users({ initialUsers = [] }: { initialUsers: User[] }) {
+export default function Users({
+  initialUsers = [],
+  isAdmin,
+}: {
+  initialUsers: User[];
+  isAdmin: boolean;
+}) {
   const [open, setOpen] = useState(false);
   const [openDelete, setOpenDelete] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -133,7 +139,7 @@ export default function Users({ initialUsers = [] }: { initialUsers: User[] }) {
           }}
         >
           <SheetTrigger asChild>
-            <Button>Cadastrar usuário</Button>
+            <Button disabled={!isAdmin}>Cadastrar usuário</Button>
           </SheetTrigger>
           <SheetContent className="max-w-[400px]">
             <SheetHeader>
@@ -159,7 +165,7 @@ export default function Users({ initialUsers = [] }: { initialUsers: User[] }) {
       </div>
 
       <DataTable
-        columns={userColumns({ handleEditUser, handleDeleteUser })}
+        columns={userColumns({ handleEditUser, handleDeleteUser, isAdmin })}
         data={users}
         filters={filters}
         filterLabels={filterLabels}

@@ -12,7 +12,8 @@ export default function HomePage({
   licensesIssuedType,
   servicesPerformedType,
   animalsAttendType,
-}: HomeData) {
+  userIsAdmin,
+}: HomeData & { userIsAdmin: boolean }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [goalLicenses, setGoalLicenses] = useState<number>(goalLicensesType);
   const [licensesIssued, setLicensesIssued] =
@@ -21,6 +22,7 @@ export default function HomePage({
     servicesPerformedType
   );
   const [animalsAttend, setAnimalsAttend] = useState<number>(animalsAttendType);
+  const isAdmin = userIsAdmin;
 
   const fetchData = async () => {
     try {
@@ -30,13 +32,13 @@ export default function HomePage({
         if (response.data) {
           const {
             goal_licenses,
-            licences_issued,
+            licenses_issued,
             services_performed,
             animals_attend,
           } = response.data[0];
 
           setGoalLicenses(goal_licenses ?? 0);
-          setLicensesIssued(licences_issued ?? 0);
+          setLicensesIssued(licenses_issued ?? 0);
           setServicesPerformed(services_performed ?? 0);
           setAnimalsAttend(animals_attend ?? 0);
         }
@@ -120,6 +122,7 @@ export default function HomePage({
           title="Meta de licenças"
           value={goalLicenses}
           setValue={setGoalLicenses}
+          disabled={!isAdmin}
         />
         <CardHome
           title="Licenças emitidas"

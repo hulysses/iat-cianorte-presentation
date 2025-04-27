@@ -9,12 +9,14 @@ interface CardHomeProps {
   title: string;
   value: number;
   setValue: (v: number) => void;
+  disabled?: boolean;
 }
 
 export default function CardHome({
   title,
   value,
   setValue,
+  disabled
 }: CardHomeProps) {
 
   const increment = () => setValue(value + 1);
@@ -23,7 +25,7 @@ export default function CardHome({
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value === "" ? 0 : parseInt(e.target.value);
     if (!isNaN(newValue)) {
-      newValue < 0 ? setValue(0) : setValue(newValue);
+      setValue(newValue);
     }
   };
   return (
@@ -39,6 +41,8 @@ export default function CardHome({
             value={value}
             onChange={handleChange}
             type="number"
+            disabled={disabled}
+            min={0}
           />
           <div className="flex flex-col h-full justify-between">
             <Button
