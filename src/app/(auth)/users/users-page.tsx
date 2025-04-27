@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/sheet";
 import UserForm from "@/components/user-form";
 import type { UserFormData } from "@/hooks/users/useUsersForm";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
 import { DataTable } from "../../../components/data-table";
 import { userColumns } from "./columns";

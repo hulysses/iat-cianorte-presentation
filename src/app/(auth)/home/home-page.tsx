@@ -1,92 +1,142 @@
 "use client";
 
-import { createGoal, getGoal } from "@/app/actions/home/actions";
-import CardGoal from "@/components/card-goal";
-import GoalDialog from "@/components/goal-dialog";
+import { getHomeData, insertHomeData } from "@/app/actions/home/actions";
+import CardHome from "@/components/card-home";
 import { Button } from "@/components/ui/button";
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
-import { useEffect, useState } from "react";
+import { HomeData } from "@/types/home-data";
+import { useState } from "react";
 import { toast } from "sonner";
 
-export default function HomePage({ goal }: { goal: number }) {
+export default function HomePage({
+  goalLicensesType,
+  licensesIssuedType,
+  servicesPerformedType,
+  animalsAttendType,
+}: HomeData) {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [open, setOpen] = useState(false);
-  const [goalNumber, setGoalNumber] = useState<number>(goal);
+  const [goalLicenses, setGoalLicenses] = useState<number>(goalLicensesType);
+  const [licensesIssued, setLicensesIssued] =
+    useState<number>(licensesIssuedType);
+  const [servicesPerformed, setServicesPerformed] = useState<number>(
+    servicesPerformedType
+  );
+  const [animalsAttend, setAnimalsAttend] = useState<number>(animalsAttendType);
 
-  const onSubmit = async (data: any) => {
-    setIsSubmitting(true);
+  const fetchData = async () => {
     try {
-      const response = await createGoal(data);
+      const response = await getHomeData();
 
       if (response.success) {
-        toast.success("Meta criada com sucesso!");
-        const { data: goalData } = await getGoal();
-        setGoalNumber(goalData?.[0]?.goal_number ?? 0);
-      } else {
-        toast.error(response.error || "Erro ao adicionar meta.");
+        if (response.data) {
+          const {
+            goal_licenses,
+            licences_issued,
+            services_performed,
+            animals_attend,
+          } = response.data[0];
+
+          setGoalLicenses(goal_licenses ?? 0);
+          setLicensesIssued(licences_issued ?? 0);
+          setServicesPerformed(services_performed ?? 0);
+          setAnimalsAttend(animals_attend ?? 0);
+        }
       }
     } catch (error) {
-      console.error("Erro ao criar meta:", error);
-      toast.error("Erro ao criar meta. Tente novamente mais tarde.");
-    } finally {
-      setIsSubmitting(false);
-      setOpen(false);
+      console.error("Erro ao buscar metas:", error);
     }
   };
 
-  useEffect(() => {}, []);
+  const handleSave = async () => {
+    setIsSubmitting(true);
+    try {
+      if (
+        goalLicenses < 0 ||
+        licensesIssued < 0 ||
+        servicesPerformed < 0 ||
+        animalsAttend < 0
+      ) {
+        toast.error("Valores não podem ser menores que 0.");
+        return;
+      }
+      if (
+        goalLicenses === 0 &&
+        licensesIssued === 0 &&
+        servicesPerformed === 0 &&
+        animalsAttend === 0
+      ) {
+        toast.error("Valores não podem ser iguais a 0.");
+        return;
+      }
+      if (
+        goalLicenses == goalLicensesType &&
+        licensesIssued == licensesIssuedType &&
+        servicesPerformed == servicesPerformedType &&
+        animalsAttend == animalsAttendType
+      ) {
+        toast.error("Nenhum valor foi alterado.");
+        return;
+      }
+
+      const response = await insertHomeData({
+        goalLicensesType: goalLicenses,
+        licensesIssuedType: licensesIssued,
+        servicesPerformedType: servicesPerformed,
+        animalsAttendType: animalsAttend,
+      });
+
+      if (response.success) {
+        toast.success("Dados salvos com sucesso!");
+        fetchData();
+      } else {
+        toast.error(response.error || "Erro ao salvar dados.");
+      }
+    } catch (error) {
+      toast.error("Erro ao salvar dados.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <div className="w-full px-5">
-      <div className="flex flex-col gap-4 mb-6 sm:flex-row sm:justify-between sm:items-center">
+      <div
+        className="flex flex-col gap-4 mb-6 sm:flex-row sm:justify-between 
+        sm:items-center"
+      >
         <div>
           <h1 className="font-bold text-2xl text-primary">
-            Bem-vindo ao painel de controle
+            Bem-vindo ao painel informativo
           </h1>
           <h3 className="font-light text-muted-foreground">
             Aqui você pode gerenciar e acompanhar seus dados.
           </h3>
         </div>
-
-        <div className="flex gap-2">
-          <GoalDialog
-            isSubmitting={isSubmitting}
-            onSubmit={onSubmit}
-            open={open}
-            setOpen={setOpen}
-            goalNumber={goalNumber}
-          />
-          <Sheet>
-            <SheetTrigger asChild>
-              <Button>Adicionar dados</Button>
-            </SheetTrigger>
-            <SheetContent className="max-w-[400px]">
-              <SheetHeader>
-                <SheetTitle>Adicionar dados</SheetTitle>
-                <SheetDescription>
-                  Preencha os dados abaixo para adicionar novos registros.
-                </SheetDescription>
-              </SheetHeader>
-              {/* <div className="p-4 h-full">
-              <UserForm
-                onSubmit={onSubmit}
-                isSubmitting={isSubmitting}
-                setOpen={setOpen}
-                user={selectedUser}
-              />
-            </div> */}
-            </SheetContent>
-          </Sheet>
-        </div>
+        <Button onClick={handleSave} disabled={isSubmitting}>
+          {isSubmitting ? "Salvando..." : "Salvar"}
+        </Button>
       </div>
-      {goalNumber > 0 ? <CardGoal goalNumber={goalNumber} /> : ""}
+      <div className="grid gap-4 lg:grid-cols-4">
+        <CardHome
+          title="Meta de licenças"
+          value={goalLicenses}
+          setValue={setGoalLicenses}
+        />
+        <CardHome
+          title="Licenças emitidas"
+          value={licensesIssued}
+          setValue={setLicensesIssued}
+        />
+        <CardHome
+          title="Atendimentos realizados"
+          value={servicesPerformed}
+          setValue={setServicesPerformed}
+        />
+        <CardHome
+          title="Animais silvestres atendidos"
+          value={animalsAttend}
+          setValue={setAnimalsAttend}
+        />
+      </div>
     </div>
   );
 }
