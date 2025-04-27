@@ -8,6 +8,7 @@ import { HomeData } from "@/types/home-data";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { homeColumns } from "./columns";
+import Link from "next/link";
 
 export default function HomePage({
   goalLicensesType,
@@ -115,7 +116,7 @@ export default function HomePage({
         className="flex flex-col gap-4 mb-6 sm:flex-row sm:justify-between 
         sm:items-center"
       >
-        <div>
+        <div className="flex flex-col gap-2">
           <h1 className="font-bold text-2xl text-primary">
             Bem-vindo ao painel informativo
           </h1>
@@ -123,32 +124,41 @@ export default function HomePage({
             Aqui você pode gerenciar e acompanhar seus dados.
           </h3>
         </div>
-        <Button onClick={handleSave} disabled={isSubmitting}>
-          {isSubmitting ? "Salvando..." : "Salvar"}
+        <Button>
+          <Link href={"/dashboard"} target="_blank">
+            Dashboard
+          </Link>
         </Button>
       </div>
-      <div className="grid gap-4 lg:grid-cols-4">
-        <CardHome
-          title="Meta de licenças"
-          value={goalLicenses}
-          setValue={setGoalLicenses}
-          disabled={!isAdmin}
-        />
-        <CardHome
-          title="Licenças emitidas"
-          value={licensesIssued}
-          setValue={setLicensesIssued}
-        />
-        <CardHome
-          title="Atendimentos realizados"
-          value={servicesPerformed}
-          setValue={setServicesPerformed}
-        />
-        <CardHome
-          title="Animais silvestres atendidos"
-          value={animalsAttend}
-          setValue={setAnimalsAttend}
-        />
+      <div className="flex flex-col gap-4">
+        <div className="grid gap-4 lg:grid-cols-4">
+          <CardHome
+            title="Meta de licenças"
+            value={goalLicenses}
+            setValue={setGoalLicenses}
+            disabled={!isAdmin}
+          />
+          <CardHome
+            title="Licenças emitidas"
+            value={licensesIssued}
+            setValue={setLicensesIssued}
+          />
+          <CardHome
+            title="Atendimentos realizados"
+            value={servicesPerformed}
+            setValue={setServicesPerformed}
+          />
+          <CardHome
+            title="Animais silvestres atendidos"
+            value={animalsAttend}
+            setValue={setAnimalsAttend}
+          />
+        </div>
+        <div className="flex justify-end">
+          <Button onClick={handleSave} disabled={isSubmitting}>
+            {isSubmitting ? "Salvando..." : "Salvar alterações"}
+          </Button>
+        </div>
       </div>
       <div className="mt-8">
         <h2 className="font-bold text-xl text-primary">Histórico de dados</h2>

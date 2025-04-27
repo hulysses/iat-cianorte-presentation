@@ -19,7 +19,7 @@ import UserForm from "@/components/user-form";
 import type { UserFormData } from "@/hooks/users/useUsersForm";
 import { useState } from "react";
 import { toast } from "sonner";
-import { DataTable } from "../../../components/data-table";
+import { DataTable } from "../../../../components/data-table";
 import { userColumns } from "./columns";
 import { User } from "@/types/users";
 import UserDialog from "@/components/user-dialog";
@@ -121,7 +121,7 @@ export default function Users({
   return (
     <div className="w-full px-5">
       <div className="flex mb-6 justify-between items-center">
-        <div>
+        <div className="flex flex-col gap-2">
           <h1 className="font-bold text-2xl text-primary">
             Gerenciamento de usuários
           </h1>
