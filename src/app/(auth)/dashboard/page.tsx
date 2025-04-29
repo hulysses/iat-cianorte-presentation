@@ -74,14 +74,9 @@ export default function Dashboard() {
 
   return (
     <div className="p-8 space-y-6 min-h-screen flex flex-col bg-gray-50">
-      <div className="flex flex-col gap-2 bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-        <h1 className="font-bold text-5xl text-primary">
-          Dashboard IAT Cianorte
-        </h1>
-        <h2 className="font-semibold text-2xl text-muted-foreground">
-          Estatísticas de licenciamentos e serviços prestados pelo IAT - ERCIA
-        </h2>
-      </div>
+      <h1 className="font-bold text-5xl text-primary">
+        Dashboard IAT Cianorte
+      </h1>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 flex-none">
         <Card className="!pt-0 overflow-hidden flex flex-col justify-between shadow-md border-2 border-gray-100 transition-all">
@@ -163,7 +158,7 @@ export default function Dashboard() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 flex-grow">
         <Card className="!pt-0 overflow-hidden shadow-md border-2 border-gray-100">
-          <CardHeader className="bg-gray-50 border-b border-gray-100">
+          <CardHeader className="py-6 bg-gray-50 border-b border-gray-100">
             <CardTitle className="text-3xl font-bold">
               Comparativo de Licenças
             </CardTitle>
@@ -174,10 +169,7 @@ export default function Dashboard() {
           <CardContent className="pt-6 p-6">
             <div className="h-full min-h-[350px]">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart
-                  data={licenseComparisonData}
-                  margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
-                >
+                <BarChart data={licenseComparisonData} margin={{ top: 20 }}>
                   <CartesianGrid
                     strokeDasharray="3 3"
                     vertical={false}
@@ -185,11 +177,11 @@ export default function Dashboard() {
                   />
                   <XAxis
                     dataKey="name"
-                    tick={{ fontSize: 18, fontWeight: 600 }}
+                    tick={{ fontSize: 24, fontWeight: 600 }}
                     tickLine={false}
                   />
                   <YAxis
-                    tick={{ fontSize: 16 }}
+                    tick={{ fontSize: 24 }}
                     tickLine={false}
                     axisLine={false}
                   />
@@ -198,13 +190,13 @@ export default function Dashboard() {
                     name="Meta"
                     fill="#156739"
                     radius={[8, 8, 0, 0]}
-                    barSize={100}
+                    barSize={150}
                   >
                     <LabelList
                       dataKey="meta"
                       position="top"
                       style={{
-                        fontSize: "18px",
+                        fontSize: "20px",
                         fontWeight: "bold",
                         fill: "#156739",
                       }}
@@ -216,13 +208,13 @@ export default function Dashboard() {
                     name="Realizado"
                     fill="#00bc7d"
                     radius={[8, 8, 0, 0]}
-                    barSize={100}
+                    barSize={150}
                   >
                     <LabelList
                       dataKey="realizado"
                       position="top"
                       style={{
-                        fontSize: "18px",
+                        fontSize: "20px",
                         fontWeight: "bold",
                         fill: "#00bc7d",
                       }}
@@ -233,7 +225,7 @@ export default function Dashboard() {
               </ResponsiveContainer>
             </div>
           </CardContent>
-          <CardFooter className="bg-gray-50 border-t border-gray-100 p-4">
+          <CardFooter>
             <div className="flex gap-6 justify-center w-full">
               <div className="flex items-center gap-2">
                 <div
@@ -254,7 +246,7 @@ export default function Dashboard() {
         </Card>
 
         <Card className="!pt-0 overflow-hidden shadow-md border-2 border-gray-100">
-          <CardHeader className="bg-gray-50 border-b border-gray-100">
+          <CardHeader className="py-6 bg-gray-50 border-b border-gray-100">
             <CardTitle className="text-3xl font-bold">
               Distribuição de Serviços
             </CardTitle>
@@ -275,14 +267,14 @@ export default function Dashboard() {
                     innerRadius={60}
                     fill="#8884d8"
                     dataKey="value"
-                    label={({ name, percent }) =>
-                      `${name}: ${(percent * 100).toFixed(0)}%`
-                    }
+                    label={({ percent }) => `${(percent * 100).toFixed(0)}%`}
                   >
                     {servicesData.map((entry, index) => (
                       <Cell
                         key={`cell-${index}`}
                         fill={entry.color}
+                        fontSize={24}
+                        fontWeight={600}
                         stroke="#fff"
                         strokeWidth={2}
                       />
@@ -292,7 +284,7 @@ export default function Dashboard() {
               </ResponsiveContainer>
             </div>
           </CardContent>
-          <CardFooter className="bg-gray-50 border-t border-gray-100 p-4">
+          <CardFooter>
             <div className="flex flex-wrap gap-6 justify-center w-full">
               {servicesData.map((entry, index) => (
                 <div key={index} className="flex items-center gap-2">
@@ -309,7 +301,7 @@ export default function Dashboard() {
       </div>
 
       <Card className="!pt-0 overflow-hidden flex-none shadow-md border-2 border-gray-100">
-        <CardHeader className="bg-gray-50 border-b border-gray-100">
+        <CardHeader className="py-6 bg-gray-50 border-b border-gray-100">
           <CardTitle className="text-3xl font-bold">
             Progresso de Licenciamento
           </CardTitle>
