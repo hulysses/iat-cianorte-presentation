@@ -17,7 +17,7 @@ type UserColumns = {
   handleDeleteUser: (user: User) => void;
   isAdmin?: boolean;
 };
-const currentUser = await getCurrentUser();
+// const currentUser = await getCurrentUser();
 
 export const userColumns = ({
   handleEditUser,
@@ -76,13 +76,13 @@ export const userColumns = ({
     },
     cell: ({ row }) => {
       const user = row.original;
-      const email = currentUser?.data?.user?.email;
+      // const email = currentUser?.data?.user?.email;
 
       return (
         <DropdownMenu>
           <DropdownMenuTrigger
             asChild
-            disabled={!isAdmin || email === "iatcianortepresentation@gmail.com"}
+            disabled={!isAdmin || user.email === "iatcianortepresentation@gmail.com"}
           >
             <Button
               variant="ghost"
