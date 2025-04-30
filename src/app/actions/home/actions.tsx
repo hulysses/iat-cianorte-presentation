@@ -32,19 +32,55 @@ export async function getHomeData() {
   const supabase = await createClient();
 
   try {
-    const { data, error } = await supabase
+    const { data: historyData, error: historyError } = await supabase
       .from("licenses_services")
       .select("*")
       .order("created_at", { ascending: false });
 
-    if (error) {
-      console.error("Error fetching goal:", error);
-      return { success: false, error: "Erro ao buscar meta." };
+    if (historyError) {
+      console.error("Erro ao buscar histórico:", historyError);
+      return { success: false, error: "Erro ao buscar histórico." };
     }
 
-    return { success: true, data };
+    const { data: totalData, error: sumError } = await supabase
+      .from("licenses_services")
+      .select(
+        `
+        goal_licenses,
+        licenses_issued,
+        services_performed,
+        animals_attend
+      `
+      );
+
+    if (sumError) {
+      console.error("Erro ao calcular soma:", sumError);
+      return { success: false, error: "Erro ao calcular soma." };
+    }
+
+    const totals = totalData?.reduce(
+      (acc, item) => ({
+        goal_licenses: acc.goal_licenses + (item.goal_licenses ?? 0),
+        licenses_issued: acc.licenses_issued + (item.licenses_issued ?? 0),
+        services_performed:
+          acc.services_performed + (item.services_performed ?? 0),
+        animals_attend: acc.animals_attend + (item.animals_attend ?? 0),
+      }),
+      {
+        goal_licenses: 0,
+        licenses_issued: 0,
+        services_performed: 0,
+        animals_attend: 0,
+      }
+    );
+
+    return {
+      success: true,
+      data: historyData,
+      totals,
+    };
   } catch (error) {
-    console.error("Error fetching goal:", error);
-    return { success: false, error: "Erro ao buscar meta." };
+    console.error("Erro geral em getHomeData:", error);
+    return { success: false, error: "Erro ao buscar dados." };
   }
 }

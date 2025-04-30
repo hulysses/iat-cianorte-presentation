@@ -1,6 +1,6 @@
 "use client";
 
-import { getHomeData, insertHomeData } from "@/app/actions/home/actions";
+import { insertHomeData } from "@/app/actions/home/actions";
 import CardHome from "@/components/card-home";
 import { DataTable } from "@/components/data-table";
 import { Button } from "@/components/ui/button";
@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/card";
 import { TrendingUp } from "lucide-react";
 import { HomeData } from "@/types/home-data";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
 import { homeColumns } from "./columns";
 import Link from "next/link";
@@ -47,44 +47,8 @@ export default function HomePage({
     animalsAttend: animalsAttendType,
   });
 
-  useEffect(() => {
-    if (homeDataList.length > 0) {
-      const last = homeDataList[0];
-      const newGoalLicenses = last.goal_licenses ?? 0;
-      const newLicensesIssued = last.licenses_issued ?? 0;
-      const newServicesPerformed = last.services_performed ?? 0;
-      const newAnimalsAttend = last.animals_attend ?? 0;
-
-      setGoalLicenses(newGoalLicenses);
-      setLicensesIssued(newLicensesIssued);
-      setServicesPerformed(newServicesPerformed);
-      setAnimalsAttend(newAnimalsAttend);
-
-      setOriginalValues({
-        goalLicenses: newGoalLicenses,
-        licensesIssued: newLicensesIssued,
-        servicesPerformed: newServicesPerformed,
-        animalsAttend: newAnimalsAttend,
-      });
-    }
-  }, [homeDataList]);
-
-  const fetchData = async () => {
-    try {
-      const response = await getHomeData();
-      if (response.success && response.data) {
-        setHomeDataList(response.data);
-      }
-    } catch (error) {
-      console.error("Erro ao buscar metas:", error);
-      toast.error(
-        "Não foi possível carregar os dados. Tente novamente mais tarde."
-      );
-    }
-  };
-
   const validateData = () => {
-    if (goalLicenses == 0) {
+    if (goalLicenses === 0) {
       toast.error("Meta de licenças não pode ser 0.");
       return false;
     }
@@ -99,22 +63,10 @@ export default function HomePage({
     }
 
     if (
-      goalLicenses === 0 &&
-      licensesIssued === 0 &&
-      servicesPerformed === 0 &&
-      animalsAttend === 0
-    ) {
-      toast.error("Pelo menos um dos valores deve ser maior que 0.");
-      return false;
-    }
-
-    const last = homeDataList[0];
-    if (
-      last &&
-      goalLicenses === (last.goal_licenses ?? 0) &&
-      licensesIssued === (last.licenses_issued ?? 0) &&
-      servicesPerformed === (last.services_performed ?? 0) &&
-      animalsAttend === (last.animals_attend ?? 0)
+      goalLicenses === originalValues.goalLicenses &&
+      licensesIssued === originalValues.licensesIssued &&
+      servicesPerformed === originalValues.servicesPerformed &&
+      animalsAttend === originalValues.animalsAttend
     ) {
       toast.error("Nenhum valor foi alterado.");
       return false;
@@ -130,17 +82,34 @@ export default function HomePage({
       setIsSubmitting(false);
       return;
     }
+
     try {
       const response = await insertHomeData({
-        goalLicensesType: goalLicenses,
-        licensesIssuedType: licensesIssued,
-        servicesPerformedType: servicesPerformed,
-        animalsAttendType: animalsAttend,
+        goalLicensesType: goalLicenses - originalValues.goalLicenses,
+        licensesIssuedType: licensesIssued - originalValues.licensesIssued,
+        servicesPerformedType:
+          servicesPerformed - originalValues.servicesPerformed,
+        animalsAttendType: animalsAttend - originalValues.animalsAttend,
       });
 
       if (response.success) {
         toast.success("Dados salvos com sucesso!");
-        await fetchData();
+        setOriginalValues({
+          goalLicenses,
+          licensesIssued,
+          servicesPerformed,
+          animalsAttend,
+        });
+        setHomeDataList([
+          {
+            created_at: new Date().toISOString(),
+            goal_licenses: goalLicenses,
+            licenses_issued: licensesIssued,
+            services_performed: servicesPerformed,
+            animals_attend: animalsAttend,
+          },
+          ...homeDataList,
+        ]);
       } else {
         toast.error(response.error || "Erro ao salvar dados.");
       }
@@ -161,7 +130,6 @@ export default function HomePage({
   };
 
   const hasChanges = () => {
-    console.log("ola");
     return (
       goalLicenses !== originalValues.goalLicenses ||
       licensesIssued !== originalValues.licensesIssued ||
@@ -170,29 +138,9 @@ export default function HomePage({
     );
   };
 
-  function groupByDay(data: any[]) {
-    const grouped: Record<string, any> = {};
-    data.forEach((item) => {
-      const day = new Date(item.created_at).toLocaleDateString("pt-BR");
-      if (
-        !grouped[day] ||
-        new Date(item.created_at) > new Date(grouped[day].created_at)
-      ) {
-        grouped[day] = item;
-      }
-    });
-    return Object.values(grouped).sort(
-      (a, b) =>
-        new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-    );
-  }
-
   return (
     <div className="w-full px-5 pb-10 space-y-8">
-      <div
-        className="flex flex-col gap-4 mb-6 sm:flex-row sm:justify-between 
-        sm:items-center"
-      >
+      <div className="flex flex-col gap-4 mb-6 sm:flex-row sm:justify-between sm:items-center">
         <div className="flex flex-col gap-2">
           <h1 className="font-bold text-2xl text-primary">
             Bem-vindo ao painel informativo
@@ -203,7 +151,7 @@ export default function HomePage({
         </div>
         <Button className="gap-2">
           <TrendingUp size={16} />
-          <Link href={"/dashboard"} target="_blank">
+          <Link href="/dashboard" target="_blank">
             Dashboard
           </Link>
         </Button>
@@ -265,16 +213,14 @@ export default function HomePage({
         <CardHeader>
           <CardTitle>Histórico de dados</CardTitle>
           <CardDescription>
-            Registros agrupados por dia (mostra último registro de cada dia)
+            Registros agrupados por dia (último registro de cada dia)
           </CardDescription>
         </CardHeader>
         <CardContent>
           <DataTable
             columns={homeColumns()}
-            data={groupByDay(homeDataList).map((item) => ({
-              createdAtType: new Date(item.created_at).toLocaleDateString(
-                "pt-BR"
-              ),
+            data={groupByDayWithAccumulated(homeDataList).map((item) => ({
+              createdAtType: item.created_at,
               goalLicensesType: item.goal_licenses,
               licensesIssuedType: item.licenses_issued,
               servicesPerformedType: item.services_performed,

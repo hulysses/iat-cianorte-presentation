@@ -1,5 +1,6 @@
 "use client";
 
+import { getCurrentUser } from "@/app/actions/users/actions";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -16,6 +17,7 @@ type UserColumns = {
   handleDeleteUser: (user: User) => void;
   isAdmin?: boolean;
 };
+const currentUser = await getCurrentUser();
 
 export const userColumns = ({
   handleEditUser,
@@ -74,10 +76,14 @@ export const userColumns = ({
     },
     cell: ({ row }) => {
       const user = row.original;
+      const email = currentUser?.data?.user?.email;
 
       return (
         <DropdownMenu>
-          <DropdownMenuTrigger asChild disabled={!isAdmin}>
+          <DropdownMenuTrigger
+            asChild
+            disabled={!isAdmin || email === "iatcianortepresentation@gmail.com"}
+          >
             <Button
               variant="ghost"
               className="h-8 w-8 p-0 hover:bg-transparent"

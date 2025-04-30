@@ -9,7 +9,6 @@ import {
   Pie,
   PieChart,
   ResponsiveContainer,
-  Tooltip,
   XAxis,
   YAxis,
 } from "recharts";
@@ -26,29 +25,58 @@ import {
 import { CheckCircle, Users, Goal, Bird } from "lucide-react";
 import { getHomeData } from "@/app/actions/home/actions";
 import { useEffect, useState } from "react";
+import { createClient } from "@/utils/supabase/client";
 
 export default function Dashboard() {
-  const [homeData, setHomeData] = useState<any[]>([]);
+  const [homeData, setHomeData] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
   useEffect(() => {
     const fetchData = async () => {
       try {
+        setIsLoading(true);
         const response = await getHomeData();
-        if (response.success && response.data) {
-          setHomeData(response.data);
+        if (response.success && response.totals) {
+          setHomeData(response.totals);
+        } else {
+          console.error("Failed to fetch dashboard data:", response.error);
         }
       } catch (error) {
         console.error("Error fetching dashboard data:", error);
+      } finally {
+        setIsLoading(false);
       }
     };
 
     fetchData();
+
+    const supabase = createClient();
+    const subscription = supabase
+      .channel('licenses_services_changes')
+      .on('postgres_changes', 
+        { 
+          event: '*', 
+          schema: 'public', 
+          table: 'licenses_services' 
+        }, 
+        async () => {
+          console.log('Data updated in licenses_services table, refreshing dashboard...');
+          const response = await getHomeData();
+          if (response.success && response.totals) {
+            setHomeData(response.totals);
+          }
+        })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(subscription);
+    };
   }, []);
 
-  const latestData = homeData.length > 0 ? homeData[0] : null;
-  const goalLicenses = latestData?.goal_licenses ?? 0;
-  const licensesIssued = latestData?.licenses_issued ?? 0;
-  const servicesPerformed = latestData?.services_performed ?? 0;
-  const animalsAttend = latestData?.animals_attend ?? 0;
+  const goalLicenses = homeData?.goal_licenses ?? 0;
+  const licensesIssued = homeData?.licenses_issued ?? 0;
+  const servicesPerformed = homeData?.services_performed ?? 0;
+  const animalsAttend = homeData?.animals_attend ?? 0;
 
   const licenseCompletionRate =
     goalLicenses > 0 ? (licensesIssued / goalLicenses) * 100 : 0;
@@ -71,6 +99,14 @@ export default function Dashboard() {
       color: "#d1d5db",
     },
   ];
+
+  if (isLoading) {
+    return (
+      <div className="p-8 flex items-center justify-center min-h-screen">
+        <p className="text-xl">Carregando dados...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="p-8 space-y-6 min-h-screen flex flex-col bg-gray-50">

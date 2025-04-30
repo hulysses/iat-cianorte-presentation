@@ -172,3 +172,15 @@ export async function userIsAdmin() {
     return { success: false, error: "Usuário não encontrado." };
   }
 }
+
+export const getCurrentUser = async () => {
+  const supabase = await createClient();
+  const { data, error } = await supabase.auth.getUser();
+
+  if (error) {
+    console.error("Error fetching user:", error);
+    return { success: false, error: "Erro ao buscar usuário." };
+  }
+
+  return { success: true, data };
+};
