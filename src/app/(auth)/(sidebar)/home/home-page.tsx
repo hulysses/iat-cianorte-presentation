@@ -138,6 +138,15 @@ export default function HomePage({
     );
   };
 
+  const areAllValuesZero = () => {
+    return (
+      goalLicenses === 0 &&
+      licensesIssued === 0 &&
+      servicesPerformed === 0 &&
+      animalsAttend === 0
+    );
+  };
+
   return (
     <div className="w-full px-5 pb-10 space-y-8">
       <div className="flex flex-col gap-4 mb-6 sm:flex-row sm:justify-between sm:items-center">
@@ -149,9 +158,9 @@ export default function HomePage({
             Aqui você pode gerenciar e acompanhar seus dados.
           </h3>
         </div>
-        <Button className="gap-2">
-          <TrendingUp size={16} />
-          <Link href="/dashboard" target="_blank">
+        <Button disabled={areAllValuesZero()}>
+          <Link className="flex gap-2 items-center" href="/dashboard" target="_blank">
+            <TrendingUp size={16} />
             Dashboard
           </Link>
         </Button>
